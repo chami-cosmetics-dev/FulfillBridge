@@ -1,0 +1,26 @@
+client_id = "2b33a27d4e18857454d3166d44f3b315"
+name = "devcartify-stable"
+application_url = "https://devcartify-stable.vercel.app"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2025-10"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
+  uri = "/webhooks"
+
+[access_scopes]
+scopes = "read_orders, write_orders, read_products, read_merchant_managed_fulfillment_orders, write_merchant_managed_fulfillment_orders"
+
+[auth]
+redirect_urls = [
+  "https://devcartify-stable.vercel.app/auth/callback"
+]
