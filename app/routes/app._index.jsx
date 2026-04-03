@@ -171,7 +171,6 @@ export default function Index() {
                   <Text as="p" tone="subdued">
                     If orders are not appearing, check Adapt request logs and Shopify order names (invoice number mapping).
                   </Text>
-                  <Button variant="tertiary" url="#">Contact Support</Button>
                 </BlockStack>
               </Card>
             </BlockStack>
