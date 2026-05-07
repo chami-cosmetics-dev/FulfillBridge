@@ -31,7 +31,9 @@ async function handleRequest(args) {
     const { session } = await authenticate.admin(request);
     shopDomain = session.shop;
   } catch (e) {
-    const authHeader = request.headers.get("X-Adapt-Key");
+    const authHeader =
+      request.headers.get("X-Fulfillment-Key") ||
+      request.headers.get("X-Adapt-Key");
 
     if (authHeader !== process.env.X_ADAPT_KEY) {
       return json({ error: "Unauthorized" }, { status: 401 });

@@ -7,7 +7,7 @@ import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
   await authenticate.admin(request);
-  const appUrl = new URL(request.url).origin;
+  const appUrl = process.env.SHOPIFY_APP_URL || new URL(request.url).origin;
 
   return { 
     authKey: process.env.X_ADAPT_KEY || "your_secret_key",
@@ -20,8 +20,17 @@ export default function Settings() {
   const shopify = useAppBridge();
   
   const endpoint = appUrl
-    ? `${appUrl}/api/updateAdaptDetails`
-    : "/api/updateAdaptDetails";
+    ? `${appUrl}/api/updateFulfillmentDetails`
+    : "/api/updateFulfillmentDetails";
+
+  const sampleBody = JSON.stringify(
+    {
+      shop: "your-test-store.myshopify.com",
+      invoiceNumber: "#1001",
+    },
+    null,
+    2,
+  );
 
   const copyToClipboard = (text, label) => {
     navigator.clipboard.writeText(text);
@@ -32,12 +41,15 @@ export default function Settings() {
     <Page title="Settings">
       <BlockStack gap="500">
         <Banner title="Connection Ready" tone="info">
-          <p>Use these credentials in your Adapt logistics system to enable automated fulfillment sync.</p>
+          <p>Use these API details in Postman or your fulfillment system to test automated order fulfillment.</p>
         </Banner>
 
         <Card>
           <BlockStack gap="400">
             <Text variant="headingMd" as="h2">API Integration Credentials</Text>
+            <Text as="p" tone="subdued">
+              Use the details below in Postman or cURL to test automated fulfillment for an existing unfulfilled Shopify order.
+            </Text>
             
             <BlockStack gap="200">
               <TextField
@@ -47,20 +59,69 @@ export default function Settings() {
                 connectedRight={
                   <Button onClick={() => copyToClipboard(endpoint, "Endpoint")}>Copy</Button>
                 }
-                helpText="Paste this URL into the 'Webhook URL' section of your Adapt system."
+                helpText="Send a POST request to this URL from Postman or your external fulfillment system."
               />
             </BlockStack>
 
             <BlockStack gap="200">
               <TextField
-                label="Security Key (X-Adapt-Key)"
+                label="Request Method"
+                value="POST"
+                readOnly
+                connectedRight={
+                  <Button onClick={() => copyToClipboard("POST", "Request method")}>Copy</Button>
+                }
+                helpText="Use POST when sending the fulfillment request."
+              />
+            </BlockStack>
+
+            <BlockStack gap="200">
+              <TextField
+                label="Security Header Value"
                 value={authKey}
                 type="password"
                 readOnly
                 connectedRight={
                   <Button onClick={() => copyToClipboard(authKey, "API Key")}>Copy</Button>
                 }
-                helpText="Use this key for authentication in your API headers."
+                helpText="Add this value to the X-Fulfillment-Key request header."
+              />
+            </BlockStack>
+
+            <BlockStack gap="200">
+              <TextField
+                label="Content-Type Header"
+                value="application/json"
+                readOnly
+                connectedRight={
+                  <Button onClick={() => copyToClipboard("application/json", "Content-Type")}>Copy</Button>
+                }
+                helpText="Send the request body as JSON."
+              />
+            </BlockStack>
+
+            <BlockStack gap="200">
+              <TextField
+                label="Security Header Name"
+                value="X-Fulfillment-Key"
+                readOnly
+                connectedRight={
+                  <Button onClick={() => copyToClipboard("X-Fulfillment-Key", "Header name")}>Copy</Button>
+                }
+                helpText="Use this as the request header name in Postman or cURL."
+              />
+            </BlockStack>
+
+            <BlockStack gap="200">
+              <TextField
+                label="Postman JSON Body Example"
+                value={sampleBody}
+                multiline={4}
+                readOnly
+                connectedRight={
+                  <Button onClick={() => copyToClipboard(sampleBody, "Sample body")}>Copy</Button>
+                }
+                helpText="Use an existing unfulfilled Shopify test order number. The API call creates the fulfillment and records the result in Fulfillment History."
               />
             </BlockStack>
           </BlockStack>
@@ -70,7 +131,7 @@ export default function Settings() {
           <BlockStack gap="200">
             <Text variant="headingMd" as="h2">Data Syncing</Text>
             <Text as="p">
-              This app currently syncs <strong>Unfulfilled</strong> orders only. If an order is already fulfilled in Shopify, the sync will be ignored to prevent duplicate notifications.
+              This app fulfills <strong>Unfulfilled</strong> orders only after a valid API request is received. Do not manually change the order status during testing; send the Postman request and then review the result in Fulfillment History.
             </Text>
           </BlockStack>
         </Card>

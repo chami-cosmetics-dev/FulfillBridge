@@ -3,20 +3,16 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 // Related: https://github.com/remix-run/remix/issues/2835#issuecomment-1144102176
-// Replace the HOST env var with SHOPIFY_APP_URL so that it doesn't break the Vite server.
-// The CLI will eventually stop passing in HOST,
-// so we can remove this workaround after the next major release.
-if (
-  process.env.HOST &&
-  (!process.env.SHOPIFY_APP_URL ||
-    process.env.SHOPIFY_APP_URL === process.env.HOST)
-) {
-  process.env.SHOPIFY_APP_URL = process.env.HOST;
-  delete process.env.HOST;
-}
+// Shopify CLI provides HOST for the current dev tunnel. Prefer it in dev so
+// embedded-admin navigations load assets from the active app host.
+const appUrl = process.env.HOST || process.env.SHOPIFY_APP_URL || "http://localhost";
+process.env.SHOPIFY_APP_URL = appUrl;
+delete process.env.HOST;
 
-const host = new URL(process.env.SHOPIFY_APP_URL || "http://localhost")
-  .hostname;
+const host = new URL(appUrl).hostname;
+const assetBase = appUrl
+  ? `${appUrl.replace(/\/$/, "")}/`
+  : "/";
 let hmrConfig;
 
 if (host === "localhost") {
@@ -36,6 +32,7 @@ if (host === "localhost") {
 }
 
 export default defineConfig({
+  base: assetBase,
   server: {
     allowedHosts: [host],
     cors: {

@@ -1,5 +1,7 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
 client_id = "2b33a27d4e18857454d3166d44f3b315"
-name = "devcartify-stable"
+name = "Auto-Fulfillment"
 application_url = "https://fulfill-bridge.vercel.app"
 embedded = true
 
@@ -14,13 +16,14 @@ api_version = "2025-10"
   uri = "/webhooks/app/uninstalled"
 
   [[webhooks.subscriptions]]
-  compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
   uri = "/webhooks"
+  compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
 
 [access_scopes]
-scopes = "read_orders, write_orders, read_products, read_merchant_managed_fulfillment_orders, write_merchant_managed_fulfillment_orders"
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_merchant_managed_fulfillment_orders,write_merchant_managed_fulfillment_orders,read_orders,write_orders,read_products"
+optional_scopes = [ ]
+use_legacy_install_flow = false
 
 [auth]
-redirect_urls = [
-  "https://fulfill-bridge.vercel.app/auth/callback"
-]
+redirect_urls = [ "https://fulfill-bridge.vercel.app/auth/callback" ]

@@ -1,9 +1,10 @@
-import { Outlet, useLoaderData, useRouteError } from "react-router";
+import { Outlet, useLoaderData, useLocation, useRouteError } from "react-router";
+import { useEffect, useState } from "react";
+import { NavMenu } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { AppProvider } from "@shopify/shopify-app-react-router/react";
 import { AppProvider as PolarisProvider } from "@shopify/polaris";
 import enTranslations from "@shopify/polaris/locales/en.json";
-import "@shopify/polaris/build/esm/styles.css";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
@@ -14,18 +15,36 @@ export const loader = async ({ request }) => {
 
 export default function App() {
   const { apiKey } = useLoaderData();
+  const location = useLocation();
+  const [isClientReady, setIsClientReady] = useState(false);
+  const search = location.search || "";
+
+  useEffect(() => {
+    let secondFrame;
+    const frame = requestAnimationFrame(() => {
+      secondFrame = requestAnimationFrame(() => setIsClientReady(true));
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(secondFrame);
+    };
+  }, []);
 
   return (
     <AppProvider embedded apiKey={apiKey}>
-      {/* 2. WRAP everything in the PolarisProvider with i18n (translations) */}
       <PolarisProvider i18n={enTranslations}>
-        <s-app-nav>
-          <s-link href="/app">Dashboard</s-link>
-          <s-link href="/app/additional">Fulfillment Logs</s-link>
-          <s-link href="/app/settings">Settings</s-link>
-        </s-app-nav>
-        
-        <Outlet />
+        <NavMenu>
+          <a href={`/app${search}`}>Dashboard</a>
+          <a href={`/app/additional${search}`}>Fulfillment Logs</a>
+          <a href={`/app/settings${search}`}>Settings</a>
+        </NavMenu>
+
+        {isClientReady ? (
+          <Outlet />
+        ) : (
+          <div style={{ minHeight: "320px" }} />
+        )}
       </PolarisProvider>
     </AppProvider>
   );
