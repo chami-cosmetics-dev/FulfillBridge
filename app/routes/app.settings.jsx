@@ -1,6 +1,6 @@
 /* global process */
 
-import { Page, Card, Text, BlockStack, TextField, Button, Banner } from "@shopify/polaris";
+import { Page, Card, Text, BlockStack, TextField, Button, InlineStack, Badge } from "@shopify/polaris";
 import { useLoaderData } from "react-router";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
@@ -39,20 +39,29 @@ export default function Settings() {
 
   return (
     <Page title="Settings">
-      <BlockStack gap="500">
-        <Banner title="Warehouse testing note" tone="info">
-          <p>No separate warehouse login is required for testing. The external warehouse action is simulated by sending the authenticated Postman request to the fulfillment API endpoint.</p>
-        </Banner>
-
-        <Banner title="Connection Ready" tone="info">
-          <p>Use these API details in Postman or your fulfillment system to test automated order fulfillment.</p>
-        </Banner>
+      <BlockStack gap="400">
+        <Card>
+          <BlockStack gap="300">
+            <InlineStack align="space-between" blockAlign="center" gap="300">
+              <Text variant="headingMd" as="h2">Review testing flow</Text>
+              <Badge tone="info">No warehouse login required</Badge>
+            </InlineStack>
+            <Text as="p" tone="subdued">
+              The external warehouse action is simulated by sending an authenticated Postman request to the fulfillment API endpoint below.
+            </Text>
+            <ol style={{ margin: 0, paddingLeft: "1.25rem" }}>
+              <li>Create or select an existing unfulfilled Shopify order.</li>
+              <li>Copy the endpoint, header name, API key, and sample JSON body from this page.</li>
+              <li>Send the request in Postman, then confirm the order is fulfilled and appears in Fulfillment History.</li>
+            </ol>
+          </BlockStack>
+        </Card>
 
         <Card>
           <BlockStack gap="400">
             <Text variant="headingMd" as="h2">API Integration Credentials</Text>
             <Text as="p" tone="subdued">
-              Use the details below in Postman or cURL to test automated fulfillment for an existing unfulfilled Shopify order.
+              Use these values in Postman or cURL to test automated fulfillment for an existing unfulfilled Shopify order.
             </Text>
             
             <BlockStack gap="200">
@@ -133,9 +142,9 @@ export default function Settings() {
 
         <Card>
           <BlockStack gap="200">
-            <Text variant="headingMd" as="h2">Data Syncing</Text>
+            <Text variant="headingMd" as="h2">Fulfillment behavior</Text>
             <Text as="p">
-              This app fulfills <strong>Unfulfilled</strong> orders only after a valid API request is received. Do not manually change the order status during testing; send the Postman request and then review the result in Fulfillment History.
+              This app fulfills <strong>Unfulfilled</strong> orders only after a valid API request is received. Already fulfilled orders are skipped to avoid duplicate fulfillment.
             </Text>
           </BlockStack>
         </Card>
