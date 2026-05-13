@@ -40,6 +40,10 @@ export default function Settings() {
   return (
     <Page title="Settings">
       <BlockStack gap="500">
+        <Banner title="Warehouse testing note" tone="info">
+          <p>No separate warehouse login is required for testing. The external warehouse action is simulated by sending the authenticated Postman request to the fulfillment API endpoint.</p>
+        </Banner>
+
         <Banner title="Connection Ready" tone="info">
           <p>Use these API details in Postman or your fulfillment system to test automated order fulfillment.</p>
         </Banner>
