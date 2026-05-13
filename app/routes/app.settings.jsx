@@ -37,24 +37,59 @@ export default function Settings() {
     shopify.toast.show(`${label} copied to clipboard`);
   };
 
+  const reviewSteps = [
+    "Create or select an existing unfulfilled Shopify order.",
+    "Copy the endpoint, header name, API key, and sample JSON body from this page.",
+    "Send the request in Postman, then confirm the order is fulfilled and appears in Fulfillment History.",
+  ];
+
   return (
     <Page title="Settings">
       <BlockStack gap="400">
         <Card>
-          <BlockStack gap="300">
-            <InlineStack align="space-between" blockAlign="center" gap="300">
-              <Text variant="headingMd" as="h2">Review testing flow</Text>
-              <Badge tone="info">No warehouse login required</Badge>
-            </InlineStack>
-            <Text as="p" tone="subdued">
-              The external warehouse action is simulated by sending an authenticated Postman request to the fulfillment API endpoint below.
-            </Text>
-            <ol style={{ margin: 0, paddingLeft: "1.25rem" }}>
-              <li>Create or select an existing unfulfilled Shopify order.</li>
-              <li>Copy the endpoint, header name, API key, and sample JSON body from this page.</li>
-              <li>Send the request in Postman, then confirm the order is fulfilled and appears in Fulfillment History.</li>
-            </ol>
-          </BlockStack>
+          <div
+            style={{
+              margin: "-1rem",
+              padding: "1rem",
+              borderRadius: "8px",
+              background: "linear-gradient(135deg, #eef7ff 0%, #f7f2ff 52%, #f2fbf6 100%)",
+              border: "1px solid #d8e7ff",
+            }}
+          >
+            <BlockStack gap="300">
+              <InlineStack align="space-between" blockAlign="center" gap="300">
+                <Text variant="headingMd" as="h2">Review testing flow</Text>
+                <Badge tone="info">No warehouse login required</Badge>
+              </InlineStack>
+              <Text as="p" tone="subdued">
+                The external warehouse action is simulated by sending an authenticated Postman request to the fulfillment API endpoint below.
+              </Text>
+              <BlockStack gap="200">
+                {reviewSteps.map((step, index) => (
+                  <InlineStack key={step} gap="300" blockAlign="start" wrap={false}>
+                    <span
+                      style={{
+                        flex: "0 0 auto",
+                        width: "28px",
+                        height: "28px",
+                        borderRadius: "999px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: index === 0 ? "#bbe5b3" : index === 1 ? "#a4e8f2" : "#e0d4ff",
+                        color: "#202223",
+                        fontSize: "13px",
+                        fontWeight: 700,
+                      }}
+                    >
+                      {index + 1}
+                    </span>
+                    <Text as="p">{step}</Text>
+                  </InlineStack>
+                ))}
+              </BlockStack>
+            </BlockStack>
+          </div>
         </Card>
 
         <Card>
