@@ -38,58 +38,99 @@ export default function Settings() {
   };
 
   const reviewSteps = [
-    "Create or select an existing unfulfilled Shopify order.",
-    "Copy the endpoint, header name, API key, and sample JSON body from this page.",
-    "Send the request in Postman, then confirm the order is fulfilled and appears in Fulfillment History.",
+    {
+      label: "Prepare order",
+      text: "Create or select an existing unfulfilled Shopify order.",
+      color: "#008060",
+      background: "#e3f1df",
+    },
+    {
+      label: "Copy API details",
+      text: "Copy the endpoint, header name, API key, and sample JSON body from this page.",
+      color: "#2c6ecb",
+      background: "#eaf3ff",
+    },
+    {
+      label: "Send request",
+      text: "Send the request in Postman, then confirm the order is fulfilled and appears in Fulfillment History.",
+      color: "#8a6116",
+      background: "#fff4d6",
+    },
   ];
 
   return (
     <Page title="Settings">
       <BlockStack gap="400">
         <Card>
-          <div
-            style={{
-              margin: "-1rem",
-              padding: "1rem",
-              borderRadius: "8px",
-              background: "linear-gradient(135deg, #eef7ff 0%, #f7f2ff 52%, #f2fbf6 100%)",
-              border: "1px solid #d8e7ff",
-            }}
-          >
-            <BlockStack gap="300">
-              <InlineStack align="space-between" blockAlign="center" gap="300">
+          <BlockStack gap="400">
+            <InlineStack align="space-between" blockAlign="start" gap="300">
+              <BlockStack gap="150">
                 <Text variant="headingMd" as="h2">Review testing flow</Text>
-                <Badge tone="info">No warehouse login required</Badge>
-              </InlineStack>
-              <Text as="p" tone="subdued">
-                The external warehouse action is simulated by sending an authenticated Postman request to the fulfillment API endpoint below.
-              </Text>
-              <BlockStack gap="200">
-                {reviewSteps.map((step, index) => (
-                  <InlineStack key={step} gap="300" blockAlign="start" wrap={false}>
-                    <span
-                      style={{
-                        flex: "0 0 auto",
-                        width: "28px",
-                        height: "28px",
-                        borderRadius: "999px",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        background: index === 0 ? "#bbe5b3" : index === 1 ? "#a4e8f2" : "#e0d4ff",
-                        color: "#202223",
-                        fontSize: "13px",
-                        fontWeight: 700,
-                      }}
-                    >
-                      {index + 1}
-                    </span>
-                    <Text as="p">{step}</Text>
-                  </InlineStack>
-                ))}
+                <Text as="p" tone="subdued">
+                  The external warehouse action is simulated with an authenticated Postman request.
+                </Text>
               </BlockStack>
-            </BlockStack>
-          </div>
+              <Badge tone="success">No warehouse login required</Badge>
+            </InlineStack>
+
+            <div
+              style={{
+                padding: "14px 16px",
+                borderRadius: "8px",
+                border: "1px solid #d7e6df",
+                borderLeft: "4px solid #008060",
+                background: "#f7fbf8",
+              }}
+            >
+              <Text as="p">
+                Shopify reviewers can complete the warehouse step by sending the authenticated request to the fulfillment API endpoint below.
+              </Text>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                gap: "12px",
+              }}
+            >
+              {reviewSteps.map((step, index) => (
+                <div
+                  key={step.label}
+                  style={{
+                    padding: "14px",
+                    borderRadius: "8px",
+                    border: "1px solid #dfe3e8",
+                    background: "#ffffff",
+                  }}
+                >
+                  <BlockStack gap="200">
+                    <InlineStack gap="200" blockAlign="center" wrap={false}>
+                      <span
+                        style={{
+                          flex: "0 0 auto",
+                          width: "28px",
+                          height: "28px",
+                          borderRadius: "999px",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          background: step.background,
+                          color: step.color,
+                          fontSize: "13px",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {index + 1}
+                      </span>
+                      <Text variant="headingSm" as="h3">{step.label}</Text>
+                    </InlineStack>
+                    <Text as="p" tone="subdued">{step.text}</Text>
+                  </BlockStack>
+                </div>
+              ))}
+            </div>
+          </BlockStack>
         </Card>
 
         <Card>
