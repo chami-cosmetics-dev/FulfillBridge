@@ -4,6 +4,73 @@ import { authenticate, unauthenticated } from "../shopify.server";
 import { json } from "@remix-run/node";
 import db from "../db.server";
 
+function isBrowserRequest(request) {
+  const accept = request.headers.get("accept") || "";
+  return request.method === "GET" && accept.includes("text/html");
+}
+
+function apiInfoResponse() {
+  return new Response(
+    `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fulfillment API Endpoint</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #f6f6f7;
+        color: #202223;
+      }
+      main {
+        width: min(680px, calc(100% - 32px));
+        padding: 32px;
+        background: #ffffff;
+        border: 1px solid #dfe3e8;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: 24px;
+        line-height: 1.25;
+      }
+      p {
+        margin: 0 0 16px;
+        line-height: 1.5;
+      }
+      code {
+        display: inline-block;
+        padding: 3px 6px;
+        border-radius: 4px;
+        background: #f1f2f3;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>This is an API endpoint</h1>
+      <p>This URL is not meant to be opened directly in a web browser.</p>
+      <p>Use Postman, cURL, or your fulfillment system to send an authenticated <code>POST</code> request with the <code>X-Fulfillment-Key</code> header and a JSON body containing <code>shop</code> and <code>invoiceNumber</code>.</p>
+    </main>
+  </body>
+</html>`,
+    {
+      status: 405,
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        Allow: "POST",
+      },
+    },
+  );
+}
+
 async function logSyncEvent({ shop, invoiceNo, status, message }) {
   if (!shop || !invoiceNo) return;
 
@@ -25,17 +92,24 @@ async function handleRequest(args) {
   const { request } = args;
   let shopDomain = null;
   let invoiceNo = null;
+  const authHeader =
+    request.headers.get("X-Fulfillment-Key") ||
+    request.headers.get("X-Adapt-Key");
+
+  if (!authHeader && isBrowserRequest(request)) {
+    return apiInfoResponse();
+  }
 
   // 1. AUTHENTICATION (Internal Session OR External API Key)
-  try {
-    const { session } = await authenticate.admin(request);
-    shopDomain = session.shop;
-  } catch (e) {
-    const authHeader =
-      request.headers.get("X-Fulfillment-Key") ||
-      request.headers.get("X-Adapt-Key");
-
-    if (authHeader !== process.env.X_ADAPT_KEY) {
+  if (authHeader) {
+    if (!process.env.X_ADAPT_KEY || authHeader !== process.env.X_ADAPT_KEY) {
+      return json({ error: "Unauthorized" }, { status: 401 });
+    }
+  } else {
+    try {
+      const { session } = await authenticate.admin(request);
+      shopDomain = session.shop;
+    } catch (e) {
       return json({ error: "Unauthorized" }, { status: 401 });
     }
   }
